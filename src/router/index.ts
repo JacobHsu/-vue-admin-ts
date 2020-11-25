@@ -5,10 +5,10 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
 
 /* Router modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+// import componentsRouter from './modules/components'
+// import chartsRouter from './modules/charts'
+// import tableRouter from './modules/table'
+// import nestedRouter from './modules/nested'
 
 Vue.use(VueRouter)
 
@@ -178,6 +178,15 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'RolePermission',
         meta: {
           title: 'rolePermission',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'account',
+        component: () => import(/* webpackChunkName: "permission-role" */ '@/views/permission/account.vue'),
+        name: 'AccountPermission',
+        meta: {
+          title: 'accountPermission',
           roles: ['admin']
         }
       }

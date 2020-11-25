@@ -110,7 +110,7 @@ import { Route } from 'vue-router'
 import { Dictionary } from 'vue-router/types/router'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-import { isValidUsername } from '@/utils/validate'
+import { isValidUsername, isValidPWD } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect/index.vue'
 import SocialSign from './components/SocialSignin.vue'
 
@@ -131,7 +131,9 @@ export default class extends Vue {
   }
 
   private validatePassword = (rule: any, value: string, callback: Function) => {
-    if (value.length < 6) {
+    if (!isValidPWD(value)) {
+       callback(new Error('需至少包含一個大寫字母及數字'))
+    } else if (value.length < 6) {
       callback(new Error('The password can not be less than 6 digits'))
     } else {
       callback()
@@ -140,7 +142,7 @@ export default class extends Vue {
 
   private loginForm = {
     username: 'admin',
-    password: '111111'
+    password: 'a12345678Z' //'111111' 
   }
 
   private loginRules = {

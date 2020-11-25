@@ -10,7 +10,7 @@ import * as api from './api'
 import { accessTokenAuth } from './security'
 
 const app = express()
-const port = 9528
+const port = 8888 // 9528 // vue.config.js
 const { connector, summarise } = require('swagger-routes-express')
 
 // Compression

@@ -3,6 +3,22 @@
 vue-element-admin [guide](https://panjiachen.github.io/vue-element-admin-site/zh/guide/)
 Typescript 版: [vue-typescript-admin-template](https://github.com/Armour/vue-typescript-admin-template)
 
+## setting
+
+mock-server.ts
+
+```js
+const app = express()
+const port = 9528
+```
+
+vue.config.js
+
+```js
+const devServerPort = 9527 // TODO: get this variable from setting.ts
+const mockServerPort = 9528 // TODO: get this variable from setting.ts
+```
+
 ## mock
 
 package.json

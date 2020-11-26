@@ -132,7 +132,7 @@ export default class extends Vue {
 
   private validatePassword = (rule: any, value: string, callback: Function) => {
     if (!isValidPWD(value)) {
-       callback(new Error('需至少包含一個大寫字母及數字'))
+      callback(new Error('需至少包含一個大寫字母及數字'))
     } else if (value.length < 6) {
       callback(new Error('The password can not be less than 6 digits'))
     } else {
@@ -142,7 +142,7 @@ export default class extends Vue {
 
   private loginForm = {
     username: 'admin',
-    password: 'a12345678Z' //'111111' 
+    password: 'a12345678Z'
   }
 
   private loginRules = {

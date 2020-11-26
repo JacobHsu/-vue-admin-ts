@@ -15,6 +15,6 @@ export const isValidURL = (url: string) => {
 }
 
 export const isValidPWD = (pwd: string) => {
-  const reg = /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/ //(?=.*[!@#$%^&*? ])
+  const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,30}/
   return reg.test(pwd)
 }

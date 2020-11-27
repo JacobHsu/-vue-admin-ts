@@ -283,6 +283,68 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/Transaction'
+  /accounts:
+    get:
+      tags:
+        - accounts
+      summary: Get Role List
+      description: Return a list of roles.
+      operationId: getAccounts
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        format: int32
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Role'
+    post:
+      tags:
+        - accounts
+      summary: Create New Account
+      description: Create a new account.
+      operationId: createAccount
+      security:
+        - AccessTokenAuth: []
+      parameters:
+        - name: role
+          in: query
+          required: true
+          description: The data for new role.
+          schema:
+            $ref: '#/components/schemas/Role'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  data:
+                    type: object
+                    properties:
+                      key:
+                        type: integer
+                        format: int64
+        401:
+          $ref: '#/components/responses/Unauthorized'
   /roles:
     get:
       tags:

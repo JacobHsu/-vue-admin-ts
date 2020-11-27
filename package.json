@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "yarn serve",
     "serve": "concurrently \"npm:mock\" \"vue-cli-service serve\"",
     "mock": "cd mock && ts-node-dev mock-server.ts",
     "build": "vue-cli-service build",

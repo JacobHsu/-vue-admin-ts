@@ -33,6 +33,40 @@ yarn mock
 
 http://localhost:9528/mock-api/v1/articles
 
+## add mock data
+
+add mock\swagger.yml   src\api\yourapi.ts match
+add src\api\types.d.ts
+
+## mock api
+
+mock\account\index.ts
+
+```js
+export const getAccounts = (req: Request, res: Response) => {
+  return res.json({
+    code: 20000,
+    data: {
+      total: account.length,
+      items: account
+    }
+  })
+}
+```
+
+src\api\accounts.ts
+
+```js
+import request from '@/utils/request'
+
+export const getAccounts = (params: any) =>
+  request({
+    url: '/accounts',
+    method: 'get',
+    params
+  })
+```
+
 ## vue cli
 
 ```js
@@ -55,3 +89,38 @@ http://localhost:9528/mock-api/v1/articles
 ## vue.config.js
 
 style-resources-loader
+
+## filters
+
+main.ts
+
+```js
+import * as filters from '@/filters'
+```
+
+filters\index.ts
+
+```js
+export { parseTime } from '@/utils'
+```
+
+utils\index.ts
+
+```js
+export const parseTime = (
+  time?: object | string | number | null,
+  cFormat?: string
+): string | null => {
+```
+
+views\table\draggable-table.vue
+
+```js
+<template slot-scope="{row}">
+  <span>{{ row.timestamp | parseTime }}</span>
+</template>
+```
+
+## References
+
+[手摸手，帶你用vue擼後臺 系列五(v4.0新版本)](https://www.mdeditor.tw/pl/23F5/zh-tw)

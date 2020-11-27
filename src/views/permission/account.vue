@@ -8,22 +8,13 @@
     </el-button>
 
     <el-table
-      :data="rolesList"
+      :data="accountsList"
       style="width: 100%;margin-top:30px;"
       border
     >
       <el-table-column
         align="center"
-        label="Role Key"
-        width="220"
-      >
-        <template slot-scope="{row}">
-          {{ row.key }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        align="center"
-        label="Role Name"
+        label="帳號"
         width="220"
       >
         <template slot-scope="{row}">
@@ -31,16 +22,31 @@
         </template>
       </el-table-column>
       <el-table-column
-        align="header-center"
-        label="Description"
+        align="center"
+        label="角色權限"
+        width="220"
       >
         <template slot-scope="{row}">
-          {{ row.description }}
+          {{ row.role }}
         </template>
       </el-table-column>
       <el-table-column
+        align="header-center"
+        label="最後更改時間"
+      >
+        <template slot-scope="{row}">
+          {{ row.timestamp | parseTime }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        align="header-center"
+        label="操作人員"
+      >
+        {{ user.name }}
+      </el-table-column>
+      <el-table-column
         align="center"
-        label="Operations"
+        label=""
       >
         <template slot-scope="scope">
           <el-button
@@ -63,37 +69,53 @@
 
     <el-dialog
       :visible.sync="dialogVisible"
-      :title="dialogType==='edit'?'Edit Role':'New Role'"
+      :title="dialogType==='edit'?'Edit Account':'New Account'"
     >
       <el-form
-        :model="role"
+        :rules="rules"
+        :model="account"
         label-width="80px"
         label-position="left"
       >
-        <el-form-item label="Name">
+        <el-form-item label="帳號">
+          <span v-if="dialogType==='edit'">{{ account.name}}</span>
+          <template v-else>
+            <el-input
+              v-model="account.name"
+              placeholder="請輸入帳號"
+            />
+          </template>
+        </el-form-item>
+        <el-form-item label="密碼" prop="password">
           <el-input
-            v-model="role.name"
-            placeholder="Role Name"
+            ref="password"
+            name="password"
+            v-model="account.password"
+            placeholder="請輸入密碼"
           />
         </el-form-item>
-        <el-form-item label="Desc">
+        <el-form-item label="重複密碼">
           <el-input
-            v-model="role.description"
-            :autosize="{minRows: 2, maxRows: 4}"
-            type="textarea"
-            placeholder="Role Description"
+            type="password"
+            v-model="account.password"
+            placeholder="請再輸入一次"
           />
         </el-form-item>
-        <el-form-item label="Menus">
-          <el-tree
-            ref="tree"
-            :check-strictly="checkStrictly"
-            :data="routesTreeData"
-            :props="defaultProps"
-            show-checkbox
-            node-key="path"
-            class="permission-tree"
-          />
+        <el-form-item
+          :label="$t('table.type')"
+        >
+          <el-select
+            v-model="account.role"
+            class="filter-item"
+            placeholder="Please select"
+          >
+            <el-option
+              v-for="item in rolesTypeOptions"
+              :key="item.key"
+              :label="item.displayName"
+              :value="item.key"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
@@ -120,7 +142,16 @@ import { cloneDeep } from 'lodash'
 import { Component, Vue } from 'vue-property-decorator'
 import { RouteConfig } from 'vue-router'
 import { Tree } from 'element-ui'
-import { getRoutes, getRoles, createRole, deleteRole, updateRole } from '@/api/roles'
+import { getRoutes, createRole, deleteRole, updateRole } from '@/api/roles'
+import { getAccounts, createAccount } from '@/api/accounts'
+import { UserModule } from '@/store/modules/user'
+import { isValidPWD } from '@/utils/validate'
+
+const rolesTypeOptions = [
+  { key: 'admin', displayName: 'admin' },
+  { key: 'editor', displayName: 'editor' },
+  { key: 'visitor', displayName: 'visitor' }
+]
 
 interface IRole {
   key: number
@@ -135,6 +166,10 @@ interface IRoutesTreeData {
   path: string
 }
 
+interface IProfile {
+  name: string
+}
+
 const defaultRole: IRole = {
   key: 0,
   name: '',
@@ -142,14 +177,21 @@ const defaultRole: IRole = {
   routes: []
 }
 
+const defaultProfile: IProfile = {
+  name: 'Loading...'
+}
+
 @Component({
   name: 'RolePermission'
 })
 export default class extends Vue {
+  private rolesTypeOptions = rolesTypeOptions
+  private user = defaultProfile
   private role = Object.assign({}, defaultRole)
+  private account = Object.assign({}, defaultRole)
   private reshapedRoutes: RouteConfig[] = []
   private serviceRoutes: RouteConfig[] = []
-  private rolesList: IRole[] = []
+  private accountsList: IRole[] = []
   private dialogVisible = false
   private dialogType = 'new'
   private checkStrictly = false
@@ -158,14 +200,41 @@ export default class extends Vue {
     label: 'title'
   }
 
+  private validatePassword = (rule: any, value: string, callback: Function) => {
+    if (!isValidPWD(value)) {
+      callback(new Error('需至少包含一個大寫字母及數字'))
+    } else if (value.length < 6) {
+      callback(new Error('The password can not be less than 6 digits'))
+    } else {
+      callback()
+    }
+  }
+
+  private rules = {
+    // type: [{ required: true, message: 'type is required', trigger: 'change' }],
+    password: [{ validator: this.validatePassword, trigger: 'blur' }]
+  }
+
   get routesTreeData() {
     return this.generateTreeData(this.reshapedRoutes)
+  }
+
+  get name() {
+    return UserModule.name
   }
 
   created() {
     // Mock: get all routes and roles list from server
     this.getRoutes()
-    this.getRoles()
+    // this.getRoles()
+    this.getAccounts()
+    this.getUser()
+  }
+
+  private getUser() {
+    this.user = {
+      name: this.name
+    }
   }
 
   private async getRoutes() {
@@ -174,9 +243,14 @@ export default class extends Vue {
     this.reshapedRoutes = this.reshapeRoutes(data.routes)
   }
 
-  private async getRoles() {
-    const { data } = await getRoles({ /* Your params here */ })
-    this.rolesList = data.items
+  // private async getRoles() {
+  //   const { data } = await getRoles({ /* Your params here */ })
+  //   this.rolesList = data.items
+  // }
+
+  private async getAccounts() {
+    const { data } = await getAccounts({ /* Your params here */ })
+    this.accountsList = data.items
   }
 
   private generateTreeData(routes: RouteConfig[]) {
@@ -240,9 +314,6 @@ export default class extends Vue {
 
   private handleCreateRole() {
     this.role = Object.assign({}, defaultRole)
-    if (this.$refs.tree) {
-      (this.$refs.tree as Tree).setCheckedKeys([])
-    }
     this.dialogType = 'new'
     this.dialogVisible = true
   }
@@ -252,14 +323,7 @@ export default class extends Vue {
     this.dialogVisible = true
     this.checkStrictly = true
     this.role = cloneDeep(scope.row)
-    this.$nextTick(() => {
-      const routes = this.flattenRoutes(this.reshapeRoutes(this.role.routes))
-      const treeData = this.generateTreeData(routes)
-      const treeDataKeys = treeData.map(t => t.path);
-      (this.$refs.tree as Tree).setCheckedKeys(treeDataKeys)
-      // set checked state of a node not affects its father and child nodes
-      this.checkStrictly = false
-    })
+    this.account = cloneDeep(scope.row)
   }
 
   private handleDelete(scope: any) {
@@ -271,7 +335,7 @@ export default class extends Vue {
     })
       .then(async() => {
         await deleteRole(row.key)
-        this.rolesList.splice($index, 1)
+        this.accountsList.splice($index, 1)
         this.$message({
           type: 'success',
           message: 'Deleted!'
@@ -303,16 +367,16 @@ export default class extends Vue {
 
     if (isEdit) {
       await updateRole(this.role.key, { role: this.role })
-      for (let index = 0; index < this.rolesList.length; index++) {
-        if (this.rolesList[index].key === this.role.key) {
-          this.rolesList.splice(index, 1, Object.assign({}, this.role))
+      for (let index = 0; index < this.accountsList.length; index++) {
+        if (this.accountsList[index].key === this.role.key) {
+          this.accountsList.splice(index, 1, Object.assign({}, this.role))
           break
         }
       }
     } else {
       const { data } = await createRole({ role: this.role })
       this.role.key = data.key
-      this.rolesList.push(this.role)
+      this.accountsList.push(this.role)
     }
 
     const { description, key, name } = this.role

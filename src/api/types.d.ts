@@ -16,6 +16,16 @@ export interface IArticleData {
   pageviews: number
 }
 
+export interface IAccountData {
+  key: string
+  username: string
+  password: string
+  name: string
+  role: string
+  description: string
+  timestamp: string | number
+}
+
 export interface IRoleData {
   key: string
   name: string

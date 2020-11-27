@@ -1,4 +1,5 @@
 export * from './articles'
+export * from './account'
 export * from './role'
 export * from './transactions'
 export * from './users'

@@ -7,6 +7,8 @@ const account: IAccountData[] = [
     key: 'admin',
     username: 'jacob',
     password: '123456',
+    newPassword: '',
+    confirmPassword: '',
     name: 'Jacob',
     role: 'admin',
     description: 'Super Administrator. Have access to view all pages.',
@@ -15,7 +17,9 @@ const account: IAccountData[] = [
   {
     key: 'editor',
     username: 'Jack',
-    password: '123456',
+    password: '1234567Rd',
+    newPassword: '',
+    confirmPassword: '',
     name: 'Jack',
     role: 'editor',
     description: 'Normal Editor. Can see all pages except permission page',
@@ -25,6 +29,8 @@ const account: IAccountData[] = [
     key: 'visitor',
     username: 'jason',
     password: '123456',
+    newPassword: '',
+    confirmPassword: '',
     name: 'Jason',
     role: 'visitor',
     description: 'Just a visitor. Can only see the home page and the document page',
@@ -51,4 +57,13 @@ export const createAccount = (req: Request, res: Response) => {
   })
 }
 
+export const updateAccount = (req: Request, res: Response) => {
+  const { role } = req.body
+  return res.json({
+    code: 20000,
+    data: {
+      role
+    }
+  })
+}
 

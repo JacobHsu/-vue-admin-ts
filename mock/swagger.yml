@@ -345,6 +345,49 @@ paths:
                         format: int64
         401:
           $ref: '#/components/responses/Unauthorized'
+  /accounts/{id}:
+    put:
+      tags:
+        - accounts
+      summary: Update Role Detail
+      description: Update role deatail by ID.
+      operationId: updateRole
+      security:
+        - AccessTokenAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Role id (key).
+          schema:
+            type: integer
+            format: int64
+        - name: role
+          in: query
+          required: true
+          description: The data for updated role.
+          schema:
+            $ref: '#/components/schemas/Role'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  data:
+                    type: object
+                    properties:
+                      role:
+                        $ref: '#/components/schemas/Role'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
   /roles:
     get:
       tags:

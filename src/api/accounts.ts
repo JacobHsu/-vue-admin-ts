@@ -13,3 +13,10 @@ export const createAccount = (data: any) =>
     method: 'post',
     data
   })
+
+export const updateAccount = (id: number, data: any) =>
+  request({
+    url: `/accounts/${id}`,
+    method: 'put',
+    data
+  })

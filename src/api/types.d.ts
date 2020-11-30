@@ -20,6 +20,8 @@ export interface IAccountData {
   key: string
   username: string
   password: string
+  newPassword: string
+  confirmPassword: string
   name: string
   role: string
   description: string

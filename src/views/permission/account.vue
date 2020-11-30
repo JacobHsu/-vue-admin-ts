@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-button
       type="primary"
-      @click="handleCreateRole"
+      @click="handleCreateAccount"
     >
       {{ $t('permission.createAccount') }}
     </el-button>
@@ -94,10 +94,20 @@
             placeholder="請輸入密碼"
           />
         </el-form-item>
-        <el-form-item label="重複密碼">
+        <el-form-item label="新密碼">
           <el-input
+            ref="newPassword"
+            name="newPassword"
+            v-model="account.newPassword"
+            placeholder="請輸入密碼"
+          />
+        </el-form-item>
+        <el-form-item label="重複密碼" prop="confirmPassword">
+          <el-input
+            ref="confirmPassword"
+            name="confirmPassword"
             type="password"
-            v-model="account.password"
+            v-model="account.confirmPassword"
             placeholder="請再輸入一次"
           />
         </el-form-item>
@@ -127,7 +137,7 @@
         </el-button>
         <el-button
           type="primary"
-          @click="confirmRole"
+          @click="confirmAccount"
         >
           {{ $t('permission.confirm') }}
         </el-button>
@@ -141,9 +151,8 @@ import path from 'path'
 import { cloneDeep } from 'lodash'
 import { Component, Vue } from 'vue-property-decorator'
 import { RouteConfig } from 'vue-router'
-import { Tree } from 'element-ui'
-import { getRoutes, createRole, deleteRole, updateRole } from '@/api/roles'
-import { getAccounts, createAccount } from '@/api/accounts'
+import { getRoutes, createRole, deleteRole } from '@/api/roles' // , updateRole
+import { getAccounts, updateAccount } from '@/api/accounts' // createAccount, 
 import { UserModule } from '@/store/modules/user'
 import { isValidPWD } from '@/utils/validate'
 
@@ -158,6 +167,18 @@ interface IRole {
   name: string
   description: string
   routes: RouteConfig[]
+}
+
+interface IAccount {
+  key: number
+  username: string
+  password: string
+  newPassword: string
+  confirmPassword: string
+  name: string
+  role: string
+  description: string
+  timestamp: string | number
 }
 
 interface IRoutesTreeData {
@@ -177,6 +198,18 @@ const defaultRole: IRole = {
   routes: []
 }
 
+const defaultAccount: IAccount = {
+  key: 0,
+  username: '',
+  password: '',
+  newPassword: '',
+  confirmPassword: '',
+  name: '',
+  role: '',
+  description: '',
+  timestamp: 0
+}
+
 const defaultProfile: IProfile = {
   name: 'Loading...'
 }
@@ -188,10 +221,10 @@ export default class extends Vue {
   private rolesTypeOptions = rolesTypeOptions
   private user = defaultProfile
   private role = Object.assign({}, defaultRole)
-  private account = Object.assign({}, defaultRole)
+  private account = Object.assign({}, defaultAccount)
   private reshapedRoutes: RouteConfig[] = []
   private serviceRoutes: RouteConfig[] = []
-  private accountsList: IRole[] = []
+  private accountsList: IAccount[] = []
   private dialogVisible = false
   private dialogType = 'new'
   private checkStrictly = false
@@ -229,6 +262,10 @@ export default class extends Vue {
     // this.getRoles()
     this.getAccounts()
     this.getUser()
+  }
+
+  updated() {
+    // console.log('updated:', this.account) 
   }
 
   private getUser() {
@@ -312,8 +349,8 @@ export default class extends Vue {
     return data
   }
 
-  private handleCreateRole() {
-    this.role = Object.assign({}, defaultRole)
+  private handleCreateAccount() {
+    this.account = Object.assign({}, defaultAccount)
     this.dialogType = 'new'
     this.dialogVisible = true
   }
@@ -359,24 +396,30 @@ export default class extends Vue {
     return res
   }
 
-  private async confirmRole() {
+  private async confirmAccount() {
     const isEdit = this.dialogType === 'edit'
-    const checkedKeys = (this.$refs.tree as Tree).getCheckedKeys()
-
-    this.role.routes = this.generateTree(cloneDeep(this.serviceRoutes), '/', checkedKeys)
 
     if (isEdit) {
-      await updateRole(this.role.key, { role: this.role })
+      
+      if(this.account.newPassword !== this.account.confirmPassword) {
+        this.$message({
+          type: 'error',
+          message: '两次输入密码不一致!'
+        })
+        return
+      }
+
+      await updateAccount(this.account.key, { role: this.account })
       for (let index = 0; index < this.accountsList.length; index++) {
-        if (this.accountsList[index].key === this.role.key) {
-          this.accountsList.splice(index, 1, Object.assign({}, this.role))
+        if (this.accountsList[index].key === this.account.key) {
+          this.accountsList.splice(index, 1, Object.assign({}, this.account))
           break
         }
       }
     } else {
       const { data } = await createRole({ role: this.role })
-      this.role.key = data.key
-      this.accountsList.push(this.role)
+      this.account.key = data.key
+      this.accountsList.push(this.account)
     }
 
     const { description, key, name } = this.role

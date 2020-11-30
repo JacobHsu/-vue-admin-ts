@@ -38,6 +38,28 @@ http://localhost:9528/mock-api/v1/articles
 add mock\swagger.yml   src\api\yourapi.ts match
 add src\api\types.d.ts
 
+views\permission\role.vue
+
+```js
+interface IRole {
+  key: number
+  name: string
+  description: string
+  routes: RouteConfig[]
+}
+```
+
+src\api\types.d.ts
+
+```js
+export interface IRoleData {
+  key: string
+  name: string
+  description: string
+  routes: any
+}
+```
+
 ## mock api
 
 mock\account\index.ts

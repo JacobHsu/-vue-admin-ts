@@ -11,6 +11,7 @@ const account: IAccountData[] = [
     confirmPassword: '',
     name: 'Jacob',
     role: 'admin',
+    status: 'open',
     description: 'Super Administrator. Have access to view all pages.',
     timestamp: faker.date.past().getTime()
   },
@@ -22,6 +23,7 @@ const account: IAccountData[] = [
     confirmPassword: '',
     name: 'Jack',
     role: 'editor',
+    status: 'open',
     description: 'Normal Editor. Can see all pages except permission page',
     timestamp: faker.date.past().getTime()
   },
@@ -32,6 +34,7 @@ const account: IAccountData[] = [
     newPassword: '',
     confirmPassword: '',
     name: 'Jason',
+    status: 'open',
     role: 'visitor',
     description: 'Just a visitor. Can only see the home page and the document page',
     timestamp: 1579469166352

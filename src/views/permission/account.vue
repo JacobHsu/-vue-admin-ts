@@ -22,9 +22,20 @@
         </template>
       </el-table-column>
       <el-table-column
+        :label="$t('table.status')"
+        class-name="status-col"
+        width="80"
+      >
+        <template slot-scope="{row}">
+          <el-tag :type="row.status | permissionStatusFilter">
+          {{ row.status }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         align="center"
         label="角色權限"
-        width="220"
+        width="180"
       >
         <template slot-scope="{row}">
           {{ row.role }}
@@ -127,6 +138,12 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item :label="$t('table.status')">
+          <el-radio-group v-model="account.status">
+            <el-radio-button label="open">開啟</el-radio-button>
+            <el-radio-button label="close">關閉</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div style="text-align:right;">
         <el-button
@@ -151,8 +168,8 @@ import path from 'path'
 import { cloneDeep } from 'lodash'
 import { Component, Vue } from 'vue-property-decorator'
 import { RouteConfig } from 'vue-router'
-import { getRoutes, createRole, deleteRole } from '@/api/roles' // , updateRole
-import { getAccounts, updateAccount } from '@/api/accounts' // createAccount, 
+import { getRoutes, createRole, deleteRole } from '@/api/roles'
+import { getAccounts, updateAccount } from '@/api/accounts'
 import { UserModule } from '@/store/modules/user'
 import { isValidPWD } from '@/utils/validate'
 
@@ -262,10 +279,6 @@ export default class extends Vue {
     // this.getRoles()
     this.getAccounts()
     this.getUser()
-  }
-
-  updated() {
-    // console.log('updated:', this.account) 
   }
 
   private getUser() {
@@ -400,8 +413,7 @@ export default class extends Vue {
     const isEdit = this.dialogType === 'edit'
 
     if (isEdit) {
-      
-      if(this.account.newPassword !== this.account.confirmPassword) {
+      if (this.account.newPassword !== this.account.confirmPassword) {
         this.$message({
           type: 'error',
           message: '两次输入密码不一致!'

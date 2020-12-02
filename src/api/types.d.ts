@@ -24,6 +24,7 @@ export interface IAccountData {
   confirmPassword: string
   name: string
   role: string
+  status: string
   description: string
   timestamp: string | number
 }

@@ -14,7 +14,7 @@
     >
       <el-table-column
         align="center"
-        label="帳號"
+        :label="$t('permission.account')"
         width="220"
       >
         <template slot-scope="{row}">
@@ -34,7 +34,7 @@
       </el-table-column>
       <el-table-column
         align="center"
-        label="角色權限"
+        :label="$t('permission.rolePermission')"
         width="180"
       >
         <template slot-scope="{row}">
@@ -43,7 +43,7 @@
       </el-table-column>
       <el-table-column
         align="header-center"
-        label="最後更改時間"
+        :label="$t('table.modifyDate')"
       >
         <template slot-scope="{row}">
           {{ row.timestamp | parseTime }}
@@ -51,7 +51,7 @@
       </el-table-column>
       <el-table-column
         align="header-center"
-        label="操作人員"
+        :label="$t('table.modifyUser')"
       >
         {{ user.name }}
       </el-table-column>
@@ -87,15 +87,16 @@
         :model="account"
         label-width="80px"
         label-position="left"
+        ref="form"
       >
-        <el-form-item label="帳號">
+        <el-form-item label="帳號" prop="name">
           <span v-if="dialogType==='edit'">{{ account.name}}</span>
           <template v-else>
             <el-input
               v-model="account.name"
               placeholder="請輸入帳號"
             />
-          </template>
+         </template>
         </el-form-item>
         <el-form-item label="密碼" prop="password">
           <el-input
@@ -105,14 +106,14 @@
             placeholder="請輸入密碼"
           />
         </el-form-item>
-        <el-form-item label="新密碼">
+        <!-- <el-form-item label="新密碼">
           <el-input
             ref="newPassword"
             name="newPassword"
             v-model="account.newPassword"
             placeholder="請輸入密碼"
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="重複密碼" prop="confirmPassword">
           <el-input
             ref="confirmPassword"
@@ -123,7 +124,8 @@
           />
         </el-form-item>
         <el-form-item
-          :label="$t('table.type')"
+          :label="$t('permission.rolePermission')"
+          prop="role"
         >
           <el-select
             v-model="account.role"
@@ -164,11 +166,10 @@
 </template>
 
 <script lang="ts">
-import path from 'path'
 import { cloneDeep } from 'lodash'
 import { Component, Vue } from 'vue-property-decorator'
 import { RouteConfig } from 'vue-router'
-import { getRoutes, createRole, deleteRole } from '@/api/roles'
+import { createRole, deleteRole } from '@/api/roles'
 import { getAccounts, updateAccount } from '@/api/accounts'
 import { UserModule } from '@/store/modules/user'
 import { isValidPWD } from '@/utils/validate'
@@ -194,14 +195,9 @@ interface IAccount {
   confirmPassword: string
   name: string
   role: string
+  status: string
   description: string
   timestamp: string | number
-}
-
-interface IRoutesTreeData {
-  children: IRoutesTreeData[]
-  title: string
-  path: string
 }
 
 interface IProfile {
@@ -223,6 +219,7 @@ const defaultAccount: IAccount = {
   confirmPassword: '',
   name: '',
   role: '',
+  status: 'open',
   description: '',
   timestamp: 0
 }
@@ -250,6 +247,14 @@ export default class extends Vue {
     label: 'title'
   }
 
+  private validateAccount = (rule: any, value: string, callback: Function) => {
+    if (value.length < 8 || value.length > 20) {
+      callback(new Error('英數字組合8-20字元'))
+    } else {
+      callback()
+    }
+  }
+
   private validatePassword = (rule: any, value: string, callback: Function) => {
     if (!isValidPWD(value)) {
       callback(new Error('需至少包含一個大寫字母及數字'))
@@ -261,12 +266,10 @@ export default class extends Vue {
   }
 
   private rules = {
-    // type: [{ required: true, message: 'type is required', trigger: 'change' }],
-    password: [{ validator: this.validatePassword, trigger: 'blur' }]
-  }
-
-  get routesTreeData() {
-    return this.generateTreeData(this.reshapedRoutes)
+    name: [{ required: true, validator: this.validateAccount, trigger: 'blur' }],
+    password: [{ required: true, validator: this.validatePassword, trigger: 'blur' }],
+    confirmPassword: [{ required: true, trigger: 'blur' }],
+    role: [{ required: true, trigger: 'blur' }]
   }
 
   get name() {
@@ -274,8 +277,6 @@ export default class extends Vue {
   }
 
   created() {
-    // Mock: get all routes and roles list from server
-    this.getRoutes()
     // this.getRoles()
     this.getAccounts()
     this.getUser()
@@ -287,12 +288,6 @@ export default class extends Vue {
     }
   }
 
-  private async getRoutes() {
-    const { data } = await getRoutes({ /* Your params here */ })
-    this.serviceRoutes = data.routes
-    this.reshapedRoutes = this.reshapeRoutes(data.routes)
-  }
-
   // private async getRoles() {
   //   const { data } = await getRoles({ /* Your params here */ })
   //   this.rolesList = data.items
@@ -301,65 +296,6 @@ export default class extends Vue {
   private async getAccounts() {
     const { data } = await getAccounts({ /* Your params here */ })
     this.accountsList = data.items
-  }
-
-  private generateTreeData(routes: RouteConfig[]) {
-    const data: IRoutesTreeData[] = []
-    for (const route of routes) {
-      const tmp: IRoutesTreeData = {
-        children: [],
-        title: '',
-        path: ''
-      }
-      tmp.title = this.$t(`route.${route.meta.title}`).toString()
-      tmp.path = route.path
-      if (route.children) {
-        tmp.children = this.generateTreeData(route.children)
-      }
-      data.push(tmp)
-    }
-    return data
-  }
-
-  // Reshape the routes structure so that it looks the same as the sidebar
-  private reshapeRoutes(routes: RouteConfig[], basePath = '/') {
-    const reshapedRoutes: RouteConfig[] = []
-    for (let route of routes) {
-      // Skip hidden routes
-      if (route.meta && route.meta.hidden) {
-        continue
-      }
-      const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-      if (route.children && onlyOneShowingChild && (!route.meta || !route.meta.alwaysShow)) {
-        route = onlyOneShowingChild
-      }
-      const data: RouteConfig = {
-        path: path.resolve(basePath, route.path),
-        meta: {
-          title: route.meta && route.meta.title
-        }
-      }
-      // Recursive generate child routes
-      if (route.children) {
-        data.children = this.reshapeRoutes(route.children, data.path)
-      }
-      reshapedRoutes.push(data)
-    }
-    return reshapedRoutes
-  }
-
-  private flattenRoutes(routes: RouteConfig[]) {
-    let data: RouteConfig[] = []
-    routes.forEach(route => {
-      data.push(route)
-      if (route.children) {
-        const temp = this.flattenRoutes(route.children)
-        if (temp.length > 0) {
-          data = [...data, ...temp]
-        }
-      }
-    })
-    return data
   }
 
   private handleCreateAccount() {
@@ -394,26 +330,11 @@ export default class extends Vue {
       .catch(err => { console.error(err) })
   }
 
-  private generateTree(routes: RouteConfig[], basePath = '/', checkedKeys: string[]) {
-    const res: RouteConfig[] = []
-    for (const route of routes) {
-      const routePath = path.resolve(basePath, route.path)
-      // recursive child routes
-      if (route.children) {
-        route.children = this.generateTree(route.children, routePath, checkedKeys)
-      }
-      if (checkedKeys.includes(routePath) || (route.children && route.children.length >= 1)) {
-        res.push(route)
-      }
-    }
-    return res
-  }
-
   private async confirmAccount() {
     const isEdit = this.dialogType === 'edit'
 
     if (isEdit) {
-      if (this.account.newPassword !== this.account.confirmPassword) {
+      if (this.account.password !== this.account.confirmPassword) {
         this.$message({
           type: 'error',
           message: '两次输入密码不一致!'
@@ -434,36 +355,23 @@ export default class extends Vue {
       this.accountsList.push(this.account)
     }
 
-    const { description, key, name } = this.role
-    this.dialogVisible = false
-    this.$notify({
-      title: 'Success',
-      dangerouslyUseHTMLString: true,
-      message: `
-          <div>Role Key: ${key}</div>
-          <div>Role Name: ${name}</div>
-          <div>Description: ${description}</div>
-        `,
-      type: 'success'
+    const form = this.$refs.form as any
+    form.validate((valid: boolean) => {
+      if (valid) {
+        const { description, key, name } = this.role
+        this.dialogVisible = false
+        this.$notify({
+          title: 'Success',
+          dangerouslyUseHTMLString: true,
+          message: `
+              <div>Role Key: ${key}</div>
+              <div>Role Name: ${name}</div>
+              <div>Description: ${description}</div>
+            `,
+          type: 'success'
+        })
+      }
     })
-  }
-
-  // Reference: src/layout/components/Sidebar/SidebarItem.vue
-  private onlyOneShowingChild(children: RouteConfig[] = [], parent: RouteConfig) {
-    let onlyOneChild = null
-    const showingChildren = children.filter(item => !item.meta || !item.meta.hidden)
-    // When there is only one child route, the child route is displayed by default
-    if (showingChildren.length === 1) {
-      onlyOneChild = showingChildren[0]
-      onlyOneChild.path = path.resolve(parent.path, onlyOneChild.path)
-      return onlyOneChild
-    }
-    // Show parent if there are no child route to display
-    if (showingChildren.length === 0) {
-      onlyOneChild = { ...parent, path: '' }
-      return onlyOneChild
-    }
-    return false
   }
 }
 </script>

@@ -87,9 +87,11 @@ export default {
     github: 'Github 地址'
   },
   permission: {
+    account: '帳號',
     createAccount: '新增帳號',
     createRole: '新增角色',
     editPermission: '编辑权限',
+    rolePermission: '角色权限',
     roles: '你的权限',
     switchRoles: '切换权限',
     tips: '在某些情况下，不适合使用 v-permission。例如：Element-UI 的 el-tab 或 el-table-column 以及其它动态渲染 dom 的场景。你只能通过手动设置 v-if 来实现。',
@@ -134,7 +136,9 @@ export default {
     draft: '草稿',
     delete: '删除',
     cancel: '取 消',
-    confirm: '确 定'
+    confirm: '确 定',
+    modifyDate: '最後更改時間',
+    modifyUser: '操作人員'
   },
   example: {
     warning: '创建和编辑页面是不能被 keep-alive 缓存的，因为keep-alive 的 include 目前不支持根据路由来缓存，所以目前都是基于 component name 来进行缓存的。如果你想类似的实现缓存效果，可以使用 localStorage 等浏览器缓存方案。或者不要使用 keep-alive 的 include，直接缓存所有页面。详情见'

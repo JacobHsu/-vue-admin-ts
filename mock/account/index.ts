@@ -55,7 +55,8 @@ export const createAccount = (req: Request, res: Response) => {
   return res.json({
     code: 20000,
     data: {
-      key: faker.random.number({ min: 3, max: 10000 })
+      key: faker.random.number({ min: 3, max: 10000 }),
+      timestamp: faker.date.past().getTime()
     }
   })
 }

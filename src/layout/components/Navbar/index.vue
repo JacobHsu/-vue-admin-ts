@@ -36,6 +36,11 @@
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
+            <router-link to="/password/">
+            <el-dropdown-item>
+              {{ $t('navbar.modifyPassword') }}
+            </el-dropdown-item>
+          </router-link>
           <router-link to="/profile/">
             <el-dropdown-item>
               {{ $t('navbar.profile') }}

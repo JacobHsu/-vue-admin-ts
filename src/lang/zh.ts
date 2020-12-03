@@ -63,6 +63,7 @@ export default {
     clipboard: '粘贴板',
     i18n: '国际化',
     externalLink: '外链',
+    password: '修改密碼',
     profile: '个人中心'
   },
   navbar: {
@@ -71,7 +72,8 @@ export default {
     github: '项目地址',
     theme: '换肤',
     size: '布局大小',
-    profile: '个人中心'
+    profile: '个人中心',
+    modifyPassword: '修改密碼',
   },
   login: {
     title: '系统登录',

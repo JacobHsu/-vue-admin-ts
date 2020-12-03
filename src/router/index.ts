@@ -137,6 +137,24 @@ export const constantRoutes: RouteConfig[] = [
         }
       }
     ]
+  },
+  {
+    path: '/password',
+    component: Layout,
+    redirect: '/password/index',
+    meta: { hidden: true },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/password/index.vue'),
+        name: 'password',
+        meta: {
+          title: 'password',
+          icon: 'user',
+          noCache: true
+        }
+      }
+    ]
   }
 ]
 

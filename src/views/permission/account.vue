@@ -169,8 +169,8 @@
 import { cloneDeep } from 'lodash'
 import { Component, Vue } from 'vue-property-decorator'
 import { RouteConfig } from 'vue-router'
-import { createRole, deleteRole } from '@/api/roles'
-import { getAccounts, updateAccount } from '@/api/accounts'
+import { deleteRole } from '@/api/roles'
+import { getAccounts, updateAccount, createAccount } from '@/api/accounts'
 import { UserModule } from '@/store/modules/user'
 import { isValidPWD } from '@/utils/validate'
 
@@ -350,15 +350,16 @@ export default class extends Vue {
         }
       }
     } else {
-      const { data } = await createRole({ role: this.role })
+      const { data } = await createAccount({ role: this.account })
       this.account.key = data.key
+      this.account.timestamp = Date.now()
       this.accountsList.push(this.account)
     }
 
     const form = this.$refs.form as any
     form.validate((valid: boolean) => {
       if (valid) {
-        const { description, key, name } = this.role
+        const { description, key, name } = this.account
         this.dialogVisible = false
         this.$notify({
           title: 'Success',

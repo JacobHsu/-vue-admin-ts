@@ -143,6 +143,38 @@ views\table\draggable-table.vue
 </template>
 ```
 
+## axios debug
+
+> xxx does not exist on type ‘AxiosResponse’.Vetur
+
+[【ts】vue-typescript-admin类型报错](https://blog.csdn.net/ann295258232/article/details/106342977)
+
+.新建axios.d.ts文件，如在该目录： src/types/axios/axios.d.ts
+axios.d.ts文件内容
+
+src\types\axios.d.ts
+
+```js
+import * as axios from 'axios'
+
+declare module 'axios' {
+  interface AxiosInstance {
+    (config: AxiosRequestConfig): Promise<any>
+  }
+}
+```
+
+修改项目第一层目录下的tsconfig.json配置文件
+
+tsconfig.json
+
+```js
+  "typeRoots": [
+    "./node_modules/@types",
+    "./src/types/",
+  ]
+```
+
 ## References
 
 [手摸手，帶你用vue擼後臺 系列五(v4.0新版本)](https://www.mdeditor.tw/pl/23F5/zh-tw)

@@ -73,7 +73,7 @@ export default {
     theme: '换肤',
     size: '布局大小',
     profile: '个人中心',
-    modifyPassword: '修改密碼',
+    modifyPassword: '修改密碼'
   },
   login: {
     title: '系统登录',

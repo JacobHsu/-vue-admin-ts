@@ -42,6 +42,7 @@ export default {
     draggableTable: '可拖拽表格',
     inlineEditTable: '表格内编辑',
     complexTable: '综合表格',
+    complexTableInline: '综合表格内编辑',
     tab: '分栏',
     form: '表单',
     createArticle: '创建文章',

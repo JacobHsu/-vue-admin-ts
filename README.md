@@ -175,6 +175,35 @@ tsconfig.json
   ]
 ```
 
+## auth
+
+permission.ts
+
+```js
+import { UserModule } from '@/store/modules/user'
+await UserModule.GetUserInfo()
+```
+
+store\modules\user.ts
+
+```js
+import { login, logout, getUserInfo } from '@/api/users'
+const { data } = await getUserInfo
+```
+
+api\users.ts
+
+```js
+export const getUserInfo = (data: any) =>
+  request({
+    url: '/users/info',
+    method: 'post',
+    data
+  })
+```
+res "data":{"user":{"id":0,"username":"admin","password" ...
+
+
 ## References
 
 [手摸手，帶你用vue擼後臺 系列五(v4.0新版本)](https://www.mdeditor.tw/pl/23F5/zh-tw)

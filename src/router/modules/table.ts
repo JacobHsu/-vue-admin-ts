@@ -34,6 +34,12 @@ const tableRoutes: RouteConfig = {
       component: () => import(/* webpackChunkName: "complex-table" */ '@/views/table/complex-table.vue'),
       name: 'ComplexTable',
       meta: { title: 'complexTable' }
+    },
+    {
+      path: 'inline-complex-table',
+      component: () => import(/* webpackChunkName: "complex-table" */ '@/views/table/inline-complex-table.vue'),
+      name: 'ComplexTable',
+      meta: { title: 'complexTableInline' }
     }
   ]
 }
